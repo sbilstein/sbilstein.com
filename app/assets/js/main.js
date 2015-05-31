@@ -23,8 +23,11 @@
       }  
     }
   }
+
+
   $(document).ready(function() {
     drawGrid();
+    $(window).resize(drawGrid);
   });
 
 })();
