@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       prod: {
-        src: ['app/assets/js/main.js'],
+        src: ['build/js/libs/jquery.min.js', 'build/js/libs/bootstrap.min.js', 'app/assets/js/libs/*.js', 'app/assets/js/*.js'],
         dest: 'build/js/main.js'
       }
     },
@@ -42,9 +42,8 @@ module.exports = function(grunt) {
       dev: {
         files: [
           {expand: true, src: "app/views/**", dest: "build/", flatten: true, filter: "isFile"},  
-          {expand: true, src: "app/assets/js/*.js", dest: "build/js/", flatten: true},          
-          {expand: true, src: "app/assets/images/faces/*.jpg", dest: "build/images/faces", flatten: true},          
-          {expand: true, src: "app/assets/sprites/*.png", dest: "build/sprites/", flatten: true},          
+          {expand: true, src: "app/assets/js/*.js", dest: "build/js/", flatten: true},
+          {expand: true, src: "app/assets/js/libs/*.js", dest: "build/js/libs", flatten: true},          
           {expand: true, src: "bower_components/bootstrap/dist/js/bootstrap.js", dest: "build/js/libs", flatten: true},
           {expand: true, src: "bower_components/jquery/dist/jquery.js", dest: "build/js/libs", flatten: true}
         ]
@@ -52,8 +51,6 @@ module.exports = function(grunt) {
       prod: {
         files: [    
           {expand: true, src: "app/views/**", dest: "build/", flatten: true, filter: "isFile"},  
-          {expand: true, src: "app/assets/images/faces/*.jpg", dest: "build/images/faces", flatten: true},            
-          {expand: true, src: "app/assets/sprites/*.png", dest: "build/sprites/", flatten: true},                
           {expand: true, src: "bower_components/bootstrap/dist/js/bootstrap.min.js", dest: "build/js/libs", flatten: true},
           {expand: true, src: "bower_components/jquery/dist/jquery.min.js", dest: "build/js/libs", flatten: true}
         ]
@@ -155,10 +152,10 @@ module.exports = function(grunt) {
   // Default task(s).
   grunt.registerTask('default', 'Building a production build', 
     ['clean',
+     'copy:prod',
      'concat:prod',
      'uglify:prod', 
      'less:prod', 
-     'copy:prod',
      'processhtml:prod', 
      'replace:prod']);
 
