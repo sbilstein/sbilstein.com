@@ -1,24 +1,42 @@
 (function() {
-  function morellet(context, squareLength) {
-    context.fillStyle = '#333';
-    var squareSize = 5;
-    // fill grid of 10px squares with randomly chosen color
-    for(j = 0; j < squareLength; j+=squareSize) {
-      for(i = 0; i < squareLength; i+=squareSize) {
-        if(Math.random() < .64) {
-          context.fillStyle = '#de355f';
-        } else {
-          context.fillStyle = '#c1fae1';
+  function morellet(context, squareLength, width, height) {
+    var start = null;
+    function draw(timestamp) {
+      if(!start) {
+        context.fillStyle = '#333';
+        context.clearRect(0, 0, width, height);
+        isDrawing = true;
+        var squareSize = 5;
+        // fill grid of 10px squares with randomly chosen color
+        for(j = 0; j < squareLength; j+=squareSize) {
+          for(i = 0; i < squareLength; i+=squareSize) {
+            if(Math.random() < .64) {
+              context.fillStyle = '#EE1111';
+            } else {
+              context.fillStyle = '#c1fae1';
+            }
+            context.fillRect(i, j, squareSize, squareSize);          
+          }  
         }
-        context.fillRect(i, j, squareSize, squareSize);          
-      }  
+        start = timestamp;
+      }        
     }
+    return draw;
+  }
+
+  function cantor(context, squareLength, width, height) {
+    var start = null;
+    function draw(timestamp) {
+
+    }
+
+    return draw;
   }
   
   function shadows(context, squareLength, width, height) {
     var start = null;
     var driftRate = 5 / 1000; 
-    function drawShadows(timestamp) {
+    function draw(timestamp) {
       if (!start) start = timestamp;
       var progress = timestamp - start;
       var drift = 3 * Math.sin(progress * ((2 * Math.PI) / 5000));
@@ -62,14 +80,16 @@
             context.fillRect(i - j - cosDrift, j + cosDrift, squareSize, squareSize);
           }
         }
-        window.requestAnimationFrame(drawShadows);
       }
 
-      window.requestAnimationFrame(drawShadows);
+      return draw;
+  }
+ 
+  function stopDrawing() {
+    isDrawing = false;
   }
 
-
-  function drawGrid() {
+  function drawGrid(animationFunc) {
     var canvas = $('#rothko')[0];
     var context = canvas.getContext('2d');
 
@@ -81,13 +101,40 @@
     canvas.height = squareWidth;  
 
     var squareLength = canvas.width;
-    // morellet(context, squareLength);
-    shadows(context, squareLength, canvas.width, canvas.height);
+
+    return animationFunc(context, squareLength, canvas.width, canvas.height);
   }
 
+  function animationLoop(timestamp) {
+    functionToDraw(timestamp);
+    window.requestAnimationFrame(animationLoop);
+  };
+
+  // Global state variables
+  var functionToDraw;
+  var functionToBind;
+
   $(document).ready(function() {
-    drawGrid();
-    $(window).resize(drawGrid);
+
+    $("#morellet-link").click(function(e) {
+      functionToBind = morellet;
+      functionToDraw = drawGrid(morellet);
+      e.preventDefault();
+    });
+
+    $("#floater-link").click(function(e) {
+      functionToBind = shadows;
+      functionToDraw = drawGrid(shadows);
+      e.preventDefault();
+    });
+
+    functionToBind = cantor;
+    functionToDraw = drawGrid(functionToBind);
+
+    animationLoop(0);
+    $(window).resize(function(){
+      functionToDraw = drawGrid(functionToBind);
+    });
   });
 
 })();
