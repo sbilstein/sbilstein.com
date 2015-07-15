@@ -125,7 +125,7 @@ module.exports = function(grunt) {
 
         cache: 500,
         showDir : true,
-        autoIndex: true,
+        autoIndex: false,
         ext: ["html", "js"],
         runInBackground: false
       }

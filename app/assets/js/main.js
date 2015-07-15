@@ -27,7 +27,15 @@
   function cantor(context, squareLength, width, height) {
     var start = null;
     function draw(timestamp) {
-
+      if (!start) start = timestamp;
+      var progress = timestamp - start;
+      // granularity happens in rounds
+      granularity = Math.floor(timestamp / 200) + 1;
+      context.fillStyle = '#222222';
+      var step = width / Math.pow(3, granularity);
+      for(j = 0; j < width; j += step) {
+       context.fillRect(j, 50, 1, 1)
+      }
     }
 
     return draw;
@@ -119,16 +127,19 @@
     $("#morellet-link").click(function(e) {
       functionToBind = morellet;
       functionToDraw = drawGrid(morellet);
+      $("#description")
+        .html("The picture above is inspired by a piece of art I saw in the MoMA. View the original <em>Random Distribution of 40,000 Squares Using the Odd and Even Numbers of a Telephone Directory</em> by Francois Morellet over at the <a href=\"https://www.moma.org/m/arts/105479?locale=en\">MoMA Website.</a>");
       e.preventDefault();
     });
 
     $("#floater-link").click(function(e) {
       functionToBind = shadows;
       functionToDraw = drawGrid(shadows);
+      $("#description").html("");
       e.preventDefault();
     });
 
-    functionToBind = cantor;
+    functionToBind = shadows;
     functionToDraw = drawGrid(functionToBind);
 
     animationLoop(0);
