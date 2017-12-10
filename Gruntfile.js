@@ -82,36 +82,42 @@ module.exports = function(grunt) {
     },
     clean: ["build/"],
     aws: grunt.file.readJSON('grunt-aws.json'),
-    s3: {
+    aws_s3: {
       options: {
-        key: '<%= aws.key %>',
-        secret: '<%= aws.secret %>',
+        accessKeyId: '<%= aws.key %>',
+        secretAccessKey: '<%= aws.secret %>',
         bucket: '<%= aws.bucket %>',
-        access: 'private',
-        gzip: true,
-        gzipExclude: ['.jpg', '.jpeg', '.png']
+        access: 'private'
+        //gzip: true,
+        //gzipExclude: ['.jpg', '.jpeg', '.png']
       },
       prod: {
-        upload: [
+        files: [
           {
             src: 'build/*',
-            dest: ''
+            dest: '/',
+						action: 'upload',
           },
           {
             src: 'build/js/*.min.js',
-            dest: 'js/'
+            dest: '/js/',
+						action: 'upload',
           },
           {
             src: 'build/images/*',
-            dest: 'images/'
+            dest: '/images/',
+						action: 'upload',
+
           },
           {
             src: 'build/js/libs/*.min.js',
-            dest: 'js/libs/'
+            dest: '/js/libs/',
+						action: 'upload',
           },
           {
             src: 'build/stylesheets/*',
-            dest: 'stylesheets/'
+            dest: '/stylesheets/',
+						action: 'upload',
           }
         ]
       }
@@ -143,7 +149,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-text-replace');
-  grunt.loadNpmTasks('grunt-s3');
+  grunt.loadNpmTasks('grunt-aws-s3');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-processhtml');
@@ -165,5 +171,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy', 'Uploading to S3',
     ['default',
-     's3:prod']);
+     'aws_s3:prod']);
 };
