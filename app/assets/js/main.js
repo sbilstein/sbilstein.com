@@ -23,44 +23,67 @@
     }
     return draw;
   }
-
+  function generateColor(r, g, b) {
+    var colorText = 'rgb(' + r + ',' + g + ',' + b + ')';
+    return colorText;    
+  }
   function cantor(context, squareLength, width, height) {
    var start = null;
    var toDraw = [];
+   var drawSegment = true;
 
-   function drawSlice(start, end, y, barsize, generation) {
-     var segment_size = Math.max(width * Math.pow(3, -generation), .1);
-     var drawSegment = true;
-     context.clearRect(0,0,width, height);
-     for(var x = start; x < end; x = x + segment_size) {
+   function drawCircle(originX, originY, maxRadius, generation) {
+     var segment_size = Math.max((Math.PI * 2) * Math.pow(3, -generation), 0.5);
+     var radius = Math.max(maxRadius * Math.pow(3, -generation), 1);
+     var radialColor = generateColor( 255 -  20* (generation), 0, 0);
+
+     for(var x = 0; x < Math.PI * 2; x = x + segment_size) {
        if(drawSegment === true) {
-         context.fillStyle = '#233123';
-         context.fillRect(x, y, segment_size, barsize);
-        }
-        if(drawSegment === true && y < height) {
-          toDraw.push(function() {
-            drawSlice(x, x + segment_size, 0, height, generation + 1);
-          });
-          // this works
-          // drawSlice(x, x + segment_size, y + barsize, barsize, generation + 1);
-        }
-        drawSegment = !drawSegment; 
+        var path = new Path2D();
+        path.moveTo(originX, originY); 
+        path.lineTo(
+          originX + radius*Math.cos(segment_size), 
+          originY + radius*Math.sin(segment_size));      
+        path.arc(originX, originY, radius, x, x + segment_size, true);
+        path.lineTo(originX, originY);
+        context.fillStyle = radialColor;
+        context.fill(path);
       }
+      drawSegment = !drawSegment; 
     }
+    if(radius > 1) {
+      drawCircle(originX, originY, radius, generation + 1);
+    }
+  }
 
-    
+  function drawSlice(start, end, y, barsize, generation) {
+   var segment_size = Math.max(width * Math.pow(3, -generation), .1);
+   var drawSegment = true;
+   var barColor = generateColor(255 - (generation * 30), 0, 0);
+   for(var x = start; x < end; x = x + segment_size) {
+     if(drawSegment === true) {
+       context.fillStyle = barColor;
+       context.fillRect(x, y, segment_size, barsize);
+     }
+     if(drawSegment === true && y < height) {
+      drawSlice(x, x + segment_size, y + barsize, barsize, generation + 1);
+    }
+    drawSegment = !drawSegment; 
+  }
+}
 
-   function draw(timestamp) { 
-    if (!start) {
-      context.fillStyle = '#DCCEDC';
-      context.fillRect(0, 0, width, height);
-      start = timestamp;
-      var progress = timestamp - start;
-        toDraw.push(function(){drawSlice(0, width, 0, height, 0)});
-      } 
-    var slicer = toDraw.pop();
-    slicer();
-   }
+
+
+function draw(timestamp) { 
+  if (!start) {
+    context.fillStyle = '#FFAA64';
+    context.fillRect(0, 0, width, height);
+    start = timestamp;
+    var progress = timestamp - start;
+      // drawSlice(0, width, height / 2.0, height / 10.0, 0);
+      drawCircle(width / 2.0, height/2.0, 500, 0);
+    } 
+  }
 
 
   return draw;
@@ -166,15 +189,15 @@ function shadows(context, squareLength, width, height) {
       e.preventDefault();
     });
 
-    $("#cantor-link").click(function(e) {
-      functionToBind = cantor;
-      functionToDraw = drawGrid(cantor);
-      $("#description").html("");
-      $("#canvas-title").text("Cantor");
-      e.preventDefault();
-    });
+    // $("#cantor-link").click(function(e) {
+    //   functionToBind = cantor;
+    //   functionToDraw = drawGrid(cantor);
+    //   $("#description").html("");
+    //   $("#canvas-title").text("Cantor");
+    //   e.preventDefault();
+    // });
 
-    functionToBind = cantor;
+    functionToBind = shadows;
     functionToDraw = drawGrid(functionToBind);
 
     animationLoop(0);
