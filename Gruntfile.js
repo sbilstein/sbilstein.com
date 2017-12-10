@@ -80,6 +80,35 @@ module.exports = function(grunt) {
         ]
       }
     },
+		compress: {
+			prod: {
+				options: {
+     			mode: 'gzip'
+   		 	},
+    		files: [
+				{
+					expand: true,
+    			cwd: 'build/',
+    			src: ['**/**.min.js'],
+    			dest: 'build/gz',
+					ext: '.js.gz',
+				},
+				{
+					expand: true,
+    			cwd: 'build/',
+    			src: ['**/*.min.css'],
+    			dest: 'build/gz',
+					ext: '.css.gz',
+				},
+				{
+					expand: true,
+    			cwd: 'build/',
+    			src: ['**/*.html'],
+    			dest: 'build/gz',
+					ext: '.html.gz',
+				},
+			]}
+		},
     clean: ["build/"],
     aws: grunt.file.readJSON('grunt-aws.json'),
     aws_s3: {
@@ -87,10 +116,12 @@ module.exports = function(grunt) {
         accessKeyId: '<%= aws.key %>',
         secretAccessKey: '<%= aws.secret %>',
         bucket: '<%= aws.bucket %>',
-        access: 'private'
-        //gzip: true,
-        //gzipExclude: ['.jpg', '.jpeg', '.png']
-      },
+        access: 'private',
+      	compressionRename: 'ext',
+				params: {
+					ContentEncoding: 'gzip' 
+				}
+			},
       prod: {
         files: [
           {
@@ -150,7 +181,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-aws-s3');
-  grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-processhtml');
   grunt.loadNpmTasks('grunt-http-server');
@@ -173,3 +205,4 @@ module.exports = function(grunt) {
     ['default',
      'aws_s3:prod']);
 };
+
